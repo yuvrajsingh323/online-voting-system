@@ -26,6 +26,25 @@ if ($_SESSION['data']['standard'] != 'voter') {
     exit();
 }
 
+// Check age verification (must be 18 or older)
+if (!isset($_SESSION['data']['age']) || $_SESSION['data']['age'] < 18) {
+    echo '<script>
+        alert("You must be at least 18 years old to vote. Your current age: ' . ($_SESSION['data']['age'] ?? 'Not verified') . ' years.");
+        window.location.href = "../partials/dashboard.php";
+        </script>';
+    exit();
+}
+
+// Check ID verification status
+if (!isset($_SESSION['data']['verification_status']) || $_SESSION['data']['verification_status'] != 'verified') {
+    $status_message = $_SESSION['data']['verification_status'] ?? 'pending';
+    echo '<script>
+        alert("Your ID verification is ' . $status_message . '. You can only vote after your ID is verified by our administrators.");
+        window.location.href = "../partials/dashboard.php";
+        </script>';
+    exit();
+}
+
 // Get the candidate ID from POST
 if (!isset($_POST['candidate_id']) || empty($_POST['candidate_id'])) {
     echo '<script>

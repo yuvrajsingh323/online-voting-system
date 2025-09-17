@@ -22,6 +22,44 @@ if (mysqli_num_rows($result) == 0) {
     echo "✅ Votes column already exists.<br>";
 }
 
+// Check if age column exists
+$check_age = "SHOW COLUMNS FROM userdata LIKE 'age'";
+$result_age = mysqli_query($conn, $check_age);
+
+if (mysqli_num_rows($result_age) == 0) {
+    echo "Age verification columns don't exist. Adding them...<br>";
+
+    // Add age verification columns
+    $add_age_columns = "ALTER TABLE userdata
+                       ADD COLUMN age INT NULL AFTER photo,
+                       ADD COLUMN id_proof VARCHAR(255) NULL AFTER age,
+                       ADD COLUMN verification_status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending' AFTER id_proof,
+                       ADD COLUMN date_of_birth DATE NULL AFTER verification_status";
+
+    if (mysqli_query($conn, $add_age_columns)) {
+        echo "✅ Age verification columns added successfully!<br>";
+
+        // Create indexes for better performance
+        $create_indexes = [
+            "CREATE INDEX idx_verification_status ON userdata (verification_status)",
+            "CREATE INDEX idx_age ON userdata (age)"
+        ];
+
+        foreach ($create_indexes as $index_sql) {
+            if (mysqli_query($conn, $index_sql)) {
+                echo "✅ Index created successfully!<br>";
+            } else {
+                echo "⚠️ Warning: Could not create index: " . mysqli_error($conn) . "<br>";
+            }
+        }
+    } else {
+        echo "❌ Error adding age verification columns: " . mysqli_error($conn) . "<br>";
+        exit;
+    }
+} else {
+    echo "✅ Age verification columns already exist.<br>";
+}
+
 // Initialize all candidate votes to 0 if they are NULL
 $init_votes = "UPDATE userdata SET votes = 0 WHERE standard = 'candidate' AND votes IS NULL";
 if (mysqli_query($conn, $init_votes)) {

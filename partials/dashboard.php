@@ -295,7 +295,7 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
                         
                         <div class="mb-2">
                             <h6 class="text-muted mb-3"><i class="fas fa-info-circle me-2"></i>Status</h6>
-                            <?php 
+                            <?php
                             if ($data['standard'] == 'candidate') {
                                 echo '<span class="badge-custom"><i class="fas fa-crown me-1"></i>Candidate</span>';
                             } else {
@@ -307,6 +307,32 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
                             }
                             ?>
                         </div>
+
+                        <!-- Age and Verification Status for Voters -->
+                        <?php if ($data['standard'] == 'voter'): ?>
+                        <div class="mb-2">
+                            <h6 class="text-muted mb-1"><i class="fas fa-birthday-cake me-2"></i>Age</h6>
+                            <p class="mb-0"><?php echo isset($data['age']) ? htmlspecialchars($data['age']) . ' years old' : 'Not specified'; ?></p>
+                        </div>
+
+                        <div class="mb-2">
+                            <h6 class="text-muted mb-1"><i class="fas fa-shield-alt me-2"></i>Verification Status</h6>
+                            <?php
+                            $verification_status = isset($data['verification_status']) ? $data['verification_status'] : 'pending';
+                            switch ($verification_status) {
+                                case 'verified':
+                                    echo '<span class="badge" style="background: linear-gradient(45deg, var(--success-color), #34d399); color: white; border-radius: 20px; padding: 0.5rem 1rem;"><i class="fas fa-check-circle me-1"></i>Verified</span>';
+                                    break;
+                                case 'rejected':
+                                    echo '<span class="badge" style="background: linear-gradient(45deg, var(--danger-color), #f87171); color: white; border-radius: 20px; padding: 0.5rem 1rem;"><i class="fas fa-times-circle me-1"></i>Rejected</span>';
+                                    break;
+                                default:
+                                    echo '<span class="badge" style="background: linear-gradient(45deg, var(--warning-color), #fbbf24); color: white; border-radius: 20px; padding: 0.5rem 1rem;"><i class="fas fa-clock me-1"></i>Pending Verification</span>';
+                                    break;
+                            }
+                            ?>
+                        </div>
+                        <?php endif; ?>
 
                         <?php if ($data['standard'] == 'voter'): ?>
                         <div class="stats-card mt-2" style="padding: 1rem;">
