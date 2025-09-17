@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 include('connect.php');
 
 // Universal file upload function
@@ -89,6 +93,12 @@ function calculateAge($dateOfBirth) {
     return $age->y;
 }
 
+// Debug: Log received data
+error_log("Registration attempt - Username: " . ($_POST['username'] ?? 'NOT SET'));
+error_log("Registration attempt - Mobile: " . ($_POST['mobile'] ?? 'NOT SET'));
+error_log("Registration attempt - Standard: " . ($_POST['std'] ?? 'NOT SET'));
+error_log("Registration attempt - DOB: " . ($_POST['date_of_birth'] ?? 'NOT SET'));
+
 $username = $_POST['username'];
 $mobile = $_POST['mobile'];
 $password = $_POST['password'];
@@ -178,6 +188,9 @@ $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 $sql = "INSERT INTO `userdata` (`username`, `mobile`, `password`, `standard`, `photo`, `status`, `votes`, `age`, `id_proof`, `verification_status`, `date_of_birth`)
         VALUES ('$username', '$mobile', '$hashed_password', '$standard', '$photo_filename', '0', '0', '$age', '$id_proof_filename', '$verification_status', '$date_of_birth')";
 
+// Debug: Log the SQL query
+error_log("SQL Query: " . $sql);
+
 $result = mysqli_query($conn, $sql);
 
 if ($result) {
@@ -193,8 +206,9 @@ if ($result) {
             </script>';
     }
 } else {
+    $error_message = "Registration failed: " . mysqli_error($conn);
     echo '<script>
-        alert("Registration failed. Please try again.");
+        alert("' . addslashes($error_message) . '");
         window.location.href = "../partials/registration.php";
         </script>';
 }
