@@ -261,6 +261,10 @@
                     <button type="submit" class="btn btn-register">
                         <i class="fas fa-user-plus me-2"></i>Register
                     </button>
+                    <!-- Debug button (remove in production) -->
+                    <button type="button" onclick="triggerUpdate()" class="btn btn-sm btn-outline-secondary mt-2" style="font-size: 10px;">
+                        Debug: Update ID Proof
+                    </button>
                 </div>
                 <div class="login-link">
                     <p>Already registered? <a href="../index.php">Login here</a></p>
@@ -274,25 +278,30 @@
     integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 
     <script>
-        // Enable/disable ID proof section based on account type
-        document.getElementById('std').addEventListener('change', function() {
+        // Function to update ID proof section
+        function updateIdProofSection() {
+            const accountTypeSelect = document.getElementById('std');
             const idProofContainer = document.getElementById('id-proof-upload-container');
             const idProofInput = document.getElementById('id-proof-upload');
             const idProofInfo = document.getElementById('id-proof-info');
 
-            if (this.value === 'voter') {
+            console.log('Updating ID proof section for value:', accountTypeSelect.value);
+
+            if (accountTypeSelect.value === 'voter') {
                 idProofContainer.style.opacity = '1';
                 idProofContainer.style.pointerEvents = 'auto';
                 idProofInput.disabled = false;
                 idProofInput.required = true;
                 idProofInfo.innerHTML = '<small class="text-success"><i class="fas fa-check-circle me-1"></i>ID proof required for voter age verification (Max 25MB)</small>';
-            } else if (this.value === 'candidate') {
+                console.log('ID proof enabled for voter');
+            } else if (accountTypeSelect.value === 'candidate') {
                 idProofContainer.style.opacity = '0.5';
                 idProofContainer.style.pointerEvents = 'none';
                 idProofInput.disabled = true;
                 idProofInput.required = false;
                 idProofInput.value = ''; // Clear any selected file
                 idProofInfo.innerHTML = '<small class="text-muted"><i class="fas fa-info-circle me-1"></i>Candidates are auto-verified, no ID proof needed</small>';
+                console.log('ID proof disabled for candidate');
             } else {
                 idProofContainer.style.opacity = '0.5';
                 idProofContainer.style.pointerEvents = 'none';
@@ -300,16 +309,37 @@
                 idProofInput.required = false;
                 idProofInput.value = '';
                 idProofInfo.innerHTML = '<small><i class="fas fa-info-circle me-1"></i>Select account type to see ID proof requirements</small>';
+                console.log('ID proof disabled - no selection');
             }
+        }
+
+        // Enable/disable ID proof section based on account type
+        document.getElementById('std').addEventListener('change', function() {
+            console.log('Account type changed to:', this.value);
+            updateIdProofSection();
         });
 
-        // Handle initial state
+        // Handle initial state and ensure it works
         document.addEventListener('DOMContentLoaded', function() {
-            const accountTypeSelect = document.getElementById('std');
-            // Trigger change event to set initial state
-            const event = new Event('change');
-            accountTypeSelect.dispatchEvent(event);
+            console.log('DOM loaded, setting up ID proof functionality');
+            updateIdProofSection();
+
+            // Also listen for any changes that might happen after DOM load
+            setTimeout(function() {
+                updateIdProofSection();
+            }, 100);
         });
+
+        // Additional fallback for when the page is fully loaded
+        window.addEventListener('load', function() {
+            console.log('Page fully loaded');
+            updateIdProofSection();
+        });
+
+        // Manual trigger function for debugging
+        function triggerUpdate() {
+            updateIdProofSection();
+        }
     </script>
 </body>
 </html>
