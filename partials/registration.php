@@ -233,7 +233,7 @@
                         </label>
                     </div>
                     <div class="file-info">
-                        <small>Supported: JPG, PNG, GIF, BMP, WEBP, SVG, MP4, AVI, MOV, WMV, MKV</small>
+                        <small>Supported: JPG, PNG, GIF, BMP, WEBP, SVG, MP4, AVI, MOV, WMV, MKV - Max 25MB</small>
                     </div>
                 </div>
                 <div class="mb-2" id="id-proof-section">
@@ -244,7 +244,7 @@
                         </label>
                     </div>
                     <div class="file-info" id="id-proof-info">
-                        <small><i class="fas fa-info-circle me-1"></i>Select "Voter" above to enable ID proof upload for age verification</small>
+                        <small><i class="fas fa-info-circle me-1"></i>Select "Voter" above to enable ID proof upload for age verification (Max 25MB)</small>
                     </div>
                 </div>
                 <div class="mb-2">
@@ -285,7 +285,7 @@
                 idProofContainer.style.pointerEvents = 'auto';
                 idProofInput.disabled = false;
                 idProofInput.required = true;
-                idProofInfo.innerHTML = '<small class="text-success"><i class="fas fa-check-circle me-1"></i>ID proof required for voter age verification</small>';
+                idProofInfo.innerHTML = '<small class="text-success"><i class="fas fa-check-circle me-1"></i>ID proof required for voter age verification (Max 25MB)</small>';
             } else if (this.value === 'candidate') {
                 idProofContainer.style.opacity = '0.5';
                 idProofContainer.style.pointerEvents = 'none';

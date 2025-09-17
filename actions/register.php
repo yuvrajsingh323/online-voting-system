@@ -17,9 +17,9 @@ function uploadFile($file) {
         return ['success' => false, 'message' => 'File upload error occurred.'];
     }
 
-    // Check file size (10MB limit)
-    if ($file_size > 10 * 1024 * 1024) {
-        return ['success' => false, 'message' => 'File size too large. Maximum 10MB allowed.'];
+    // Check file size (25MB limit)
+    if ($file_size > 25 * 1024 * 1024) {
+        return ['success' => false, 'message' => 'File size too large. Maximum 25MB allowed.'];
     }
 
     // Get file extension
@@ -56,9 +56,9 @@ function uploadIdProof($file) {
         return ['success' => false, 'message' => 'ID proof upload error occurred.'];
     }
 
-    // Check file size (10MB limit for ID proofs to accommodate various document types)
-    if ($file_size > 10 * 1024 * 1024) {
-        return ['success' => false, 'message' => 'ID proof file size too large. Maximum 10MB allowed.'];
+    // Check file size (25MB limit for ID proofs to accommodate various document types)
+    if ($file_size > 25 * 1024 * 1024) {
+        return ['success' => false, 'message' => 'ID proof file size too large. Maximum 25MB allowed.'];
     }
 
     // Get file extension
