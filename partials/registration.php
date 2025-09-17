@@ -236,15 +236,15 @@
                         <small>Supported: JPG, PNG, GIF, BMP, WEBP, SVG, MP4, AVI, MOV, WMV, MKV</small>
                     </div>
                 </div>
-                <div class="mb-2">
+                <div class="mb-2" id="id-proof-section" style="display: none;">
                     <div class="file-upload">
-                        <input type="file" name="id_proof" accept="image/*,.pdf,.doc,.docx,.bmp,.tiff,.tif,.webp" id="id-proof-upload" required>
+                        <input type="file" name="id_proof" accept="image/*,.pdf,.doc,.docx,.bmp,.tiff,.tif,.webp" id="id-proof-upload">
                         <label for="id-proof-upload" class="file-upload-label">
                             <i class="fas fa-id-card"></i> Upload ID Proof (College ID, Aadhaar, Passport, etc.)
                         </label>
                     </div>
                     <div class="file-info">
-                        <small>Supported: Images (JPG, PNG, GIF, BMP, WEBP, TIFF) and Documents (PDF, DOC, DOCX) - Max 10MB - Required for age verification</small>
+                        <small>Supported: Images (JPG, PNG, GIF, BMP, WEBP, TIFF) and Documents (PDF, DOC, DOCX) - Max 10MB - Required for voter age verification</small>
                     </div>
                 </div>
                 <div class="mb-2">
@@ -272,5 +272,32 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+    <script>
+        // Show/hide ID proof section based on account type
+        document.getElementById('std').addEventListener('change', function() {
+            const idProofSection = document.getElementById('id-proof-section');
+            const idProofInput = document.getElementById('id-proof-upload');
+
+            if (this.value === 'voter') {
+                idProofSection.style.display = 'block';
+                idProofInput.required = true;
+            } else {
+                idProofSection.style.display = 'none';
+                idProofInput.required = false;
+                // Clear any selected file when switching to candidate
+                idProofInput.value = '';
+            }
+        });
+
+        // Also handle the case where voter is pre-selected
+        document.addEventListener('DOMContentLoaded', function() {
+            const accountTypeSelect = document.getElementById('std');
+            if (accountTypeSelect.value === 'voter') {
+                document.getElementById('id-proof-section').style.display = 'block';
+                document.getElementById('id-proof-upload').required = true;
+            }
+        });
+    </script>
 </body>
 </html>

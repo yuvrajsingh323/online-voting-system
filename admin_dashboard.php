@@ -259,44 +259,53 @@ $users = mysqli_fetch_all($users_result, MYSQLI_ASSOC);
                         </div>
                         <div class="col-md-1">
                             <?php if ($user['standard'] == 'candidate'): ?>
-                                <span class="badge bg-info"><?php echo $user['votes'] ?? 0; ?> votes</span>
+                                <div>
+                                    <div class="badge bg-info"><?php echo $user['votes'] ?? 0; ?> votes</div>
+                                    <small class="text-muted d-block">Auto-verified</small>
+                                </div>
                             <?php else: ?>
-                                <span class="text-muted"><?php echo $user['age'] ?? 'N/A'; ?> yrs</span>
+                                <div>
+                                    <div><?php echo $user['age'] ?? 'N/A'; ?> yrs</div>
+                                    <small class="text-muted"><?php echo $user['id_proof'] ? 'ID: Yes' : 'ID: No'; ?></small>
+                                </div>
                             <?php endif; ?>
                         </div>
                         <div class="col-md-2">
                             <div class="btn-group" role="group">
-                                <?php if ($user['standard'] == 'voter' && $user['verification_status'] == 'pending'): ?>
-                                    <form method="POST" action="actions/admin_verify.php" class="d-inline">
-                                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                        <input type="hidden" name="action" value="verify">
-                                        <button type="submit" class="btn btn-success btn-action" title="Verify User">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                    <form method="POST" action="actions/admin_verify.php" class="d-inline">
-                                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                        <input type="hidden" name="action" value="reject">
-                                        <button type="submit" class="btn btn-warning btn-action" title="Reject User">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </form>
-                                <?php endif; ?>
+                                <?php if ($user['standard'] == 'voter'): ?>
+                                    <?php if ($user['verification_status'] == 'pending'): ?>
+                                        <form method="POST" action="actions/admin_verify.php" class="d-inline">
+                                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                            <input type="hidden" name="action" value="verify">
+                                            <button type="submit" class="btn btn-success btn-action" title="Verify Voter">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="actions/admin_verify.php" class="d-inline">
+                                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" class="btn btn-warning btn-action" title="Reject Voter">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    <?php elseif ($user['verification_status'] == 'rejected'): ?>
+                                        <form method="POST" action="actions/admin_verify.php" class="d-inline">
+                                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                            <input type="hidden" name="action" value="reset_verification">
+                                            <button type="submit" class="btn btn-secondary btn-action" title="Reset to Pending">
+                                                <i class="fas fa-undo"></i>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
 
-                                <?php if ($user['standard'] == 'voter' && $user['verification_status'] == 'rejected'): ?>
-                                    <form method="POST" action="actions/admin_verify.php" class="d-inline">
-                                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                        <input type="hidden" name="action" value="reset_verification">
-                                        <button type="submit" class="btn btn-secondary btn-action" title="Reset to Pending">
-                                            <i class="fas fa-undo"></i>
+                                    <?php if (!empty($user['id_proof'])): ?>
+                                        <button class="btn btn-info btn-action" onclick="viewIdProof('<?php echo $user['id_proof']; ?>')" title="View ID Proof">
+                                            <i class="fas fa-id-card"></i>
                                         </button>
-                                    </form>
-                                <?php endif; ?>
-
-                                <?php if (!empty($user['id_proof'])): ?>
-                                    <button class="btn btn-info btn-action" onclick="viewIdProof('<?php echo $user['id_proof']; ?>')" title="View ID Proof">
-                                        <i class="fas fa-id-card"></i>
-                                    </button>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <!-- Candidates don't need verification actions -->
+                                    <span class="text-muted small">Auto-verified</span>
                                 <?php endif; ?>
 
                                 <form method="POST" action="actions/admin_verify.php" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?')">

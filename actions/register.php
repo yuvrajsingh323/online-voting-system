@@ -141,41 +141,57 @@ if (isset($_FILES['photo']) && $_FILES['photo']['error'] !== UPLOAD_ERR_NO_FILE)
     $photo_filename = $upload_result['filename'];
 }
 
-// Handle ID proof upload (required)
-if (!isset($_FILES['id_proof']) || $_FILES['id_proof']['error'] === UPLOAD_ERR_NO_FILE) {
-    echo '<script>
-        alert("ID proof is required for age verification.");
-        window.location.href = "../partials/registration.php";
-        </script>';
-    exit;
+// Handle ID proof upload (only required for voters)
+$id_proof_filename = '';
+
+if ($standard == 'voter') {
+    // ID proof is required for voters
+    if (!isset($_FILES['id_proof']) || $_FILES['id_proof']['error'] === UPLOAD_ERR_NO_FILE) {
+        echo '<script>
+            alert("ID proof is required for voter age verification.");
+            window.location.href = "../partials/registration.php";
+            </script>';
+        exit;
+    }
+
+    $id_upload_result = uploadIdProof($_FILES['id_proof']);
+
+    if (!$id_upload_result['success']) {
+        echo '<script>
+            alert("' . $id_upload_result['message'] . '");
+            window.location.href = "../partials/registration.php";
+            </script>';
+        exit;
+    }
+
+    $id_proof_filename = $id_upload_result['filename'];
+    $verification_status = 'pending'; // Voters need verification
+} else {
+    // Candidates don't need ID proof, auto-verify them
+    $verification_status = 'verified';
 }
-
-$id_upload_result = uploadIdProof($_FILES['id_proof']);
-
-if (!$id_upload_result['success']) {
-    echo '<script>
-        alert("' . $id_upload_result['message'] . '");
-        window.location.href = "../partials/registration.php";
-        </script>';
-    exit;
-}
-
-$id_proof_filename = $id_upload_result['filename'];
 
 // Secure password storage
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
 // Insert user data with age verification fields
 $sql = "INSERT INTO `userdata` (`username`, `mobile`, `password`, `standard`, `photo`, `status`, `votes`, `age`, `id_proof`, `verification_status`, `date_of_birth`)
-        VALUES ('$username', '$mobile', '$hashed_password', '$standard', '$photo_filename', '0', '0', '$age', '$id_proof_filename', 'pending', '$date_of_birth')";
+        VALUES ('$username', '$mobile', '$hashed_password', '$standard', '$photo_filename', '0', '0', '$age', '$id_proof_filename', '$verification_status', '$date_of_birth')";
 
 $result = mysqli_query($conn, $sql);
 
 if ($result) {
-    echo '<script>
-        alert("Registration successful! Your ID proof will be verified within 24 hours. You can log in once verified.");
-        window.location.href = "../index.php";
-        </script>';
+    if ($standard == 'voter') {
+        echo '<script>
+            alert("Registration successful! Your ID proof will be verified within 24 hours. You can log in once verified.");
+            window.location.href = "../index.php";
+            </script>';
+    } else {
+        echo '<script>
+            alert("Registration successful! You can now log in as a candidate.");
+            window.location.href = "../index.php";
+            </script>';
+    }
 } else {
     echo '<script>
         alert("Registration failed. Please try again.");
