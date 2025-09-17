@@ -241,6 +241,7 @@
                         <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
                         <select name="std" class="form-select" id="account-type-select" required onchange="toggleIdProof()">
                             <option value="">Select account type</option>
+                            <option value="admin">Administrator</option>
                             <option value="candidate">Candidate</option>
                             <option value="voter">Voter</option>
                         </select>
@@ -287,8 +288,8 @@
                 ageInput.required = true;
                 idProofSection.style.display = 'block';
                 idProofInput.required = true;
-            } else if (accountType === 'candidate') {
-                // Hide age and ID proof for candidates
+            } else if (accountType === 'candidate' || accountType === 'admin') {
+                // Hide age and ID proof for candidates and admins
                 ageSection.style.display = 'none';
                 ageInput.required = false;
                 ageInput.value = ''; // Clear date

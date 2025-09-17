@@ -7,8 +7,13 @@ $mobile = $_POST['mobile'];
 $password = $_POST['password'];
 $standard = $_POST['std'];
 
+// Debug: Log login attempt
+error_log("Login attempt - Username: $username, Mobile: $mobile, Standard: $standard");
+
 // Fetch user by username, mobile, and standard
 $sql = "SELECT * FROM `userdata` WHERE `username`='$username' AND `mobile`='$mobile' AND `standard`='$standard'";
+error_log("Login SQL: $sql");
+
 $result = mysqli_query($conn, $sql);
 
 if (mysqli_num_rows($result) > 0) {

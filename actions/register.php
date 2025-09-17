@@ -134,7 +134,7 @@ if ($standard == 'voter') {
         exit;
     }
 } else {
-    // For candidates, set default values
+    // For candidates and admins, set default values
     $age = NULL;
     $date_of_birth = NULL;
 }
@@ -183,7 +183,7 @@ if ($standard == 'voter') {
     $id_proof_filename = $id_upload_result['filename'];
     $verification_status = 'pending'; // Voters need verification
 } else {
-    // Candidates don't need ID proof, auto-verify them
+    // Candidates and admins don't need ID proof, auto-verify them
     $verification_status = 'verified';
 }
 
@@ -203,6 +203,11 @@ if ($result) {
     if ($standard == 'voter') {
         echo '<script>
             alert("Registration successful! Your ID proof will be verified within 24 hours. You can log in once verified.");
+            window.location.href = "../index.php";
+            </script>';
+    } elseif ($standard == 'admin') {
+        echo '<script>
+            alert("Admin registration successful! You can now log in as an administrator.");
             window.location.href = "../index.php";
             </script>';
     } else {
