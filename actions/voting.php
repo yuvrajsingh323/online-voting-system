@@ -26,13 +26,15 @@ if ($_SESSION['data']['standard'] != 'voter') {
     exit();
 }
 
-// Check age verification (must be 18 or older)
-if (!isset($_SESSION['data']['age']) || $_SESSION['data']['age'] < 18) {
-    echo '<script>
-        alert("You must be at least 18 years old to vote. Your current age: ' . ($_SESSION['data']['age'] ?? 'Not verified') . ' years.");
-        window.location.href = "../partials/dashboard.php";
-        </script>';
-    exit();
+// Check age verification (only for voters, candidates don't need age verification)
+if ($_SESSION['data']['standard'] == 'voter') {
+    if (!isset($_SESSION['data']['age']) || $_SESSION['data']['age'] === NULL || $_SESSION['data']['age'] < 18) {
+        echo '<script>
+            alert("You must be at least 18 years old to vote. Your current age: ' . ($_SESSION['data']['age'] ?? 'Not verified') . ' years.");
+            window.location.href = "../partials/dashboard.php";
+            </script>';
+        exit();
+    }
 }
 
 // Check ID verification status

@@ -114,23 +114,29 @@ if ($password != $cpassword) {
     exit;
 }
 
-// Validate date of birth and calculate age
-if (empty($date_of_birth)) {
-    echo '<script>
-        alert("Date of birth is required.");
-        window.location.href = "../partials/registration.php";
-        </script>';
-    exit;
-}
+// Validate date of birth and calculate age (only for voters)
+if ($standard == 'voter') {
+    if (empty($date_of_birth)) {
+        echo '<script>
+            alert("Date of birth is required for voters.");
+            window.location.href = "../partials/registration.php";
+            </script>';
+        exit;
+    }
 
-$age = calculateAge($date_of_birth);
+    $age = calculateAge($date_of_birth);
 
-if ($age < 18) {
-    echo '<script>
-        alert("You must be at least 18 years old to register. Your age: ' . $age . ' years.");
-        window.location.href = "../partials/registration.php";
-        </script>';
-    exit;
+    if ($age < 18) {
+        echo '<script>
+            alert("You must be at least 18 years old to vote. Your age: ' . $age . ' years.");
+            window.location.href = "../partials/registration.php";
+            </script>';
+        exit;
+    }
+} else {
+    // For candidates, set default values
+    $age = NULL;
+    $date_of_birth = NULL;
 }
 
 $photo_filename = '';
@@ -186,7 +192,7 @@ $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
 // Insert user data with age verification fields
 $sql = "INSERT INTO `userdata` (`username`, `mobile`, `password`, `standard`, `photo`, `status`, `votes`, `age`, `id_proof`, `verification_status`, `date_of_birth`)
-        VALUES ('$username', '$mobile', '$hashed_password', '$standard', '$photo_filename', '0', '0', '$age', '$id_proof_filename', '$verification_status', '$date_of_birth')";
+        VALUES ('$username', '$mobile', '$hashed_password', '$standard', '$photo_filename', '0', '0', " . ($age !== NULL ? "'$age'" : "NULL") . ", '$id_proof_filename', '$verification_status', " . ($date_of_birth !== NULL ? "'$date_of_birth'" : "NULL") . ")";
 
 // Debug: Log the SQL query
 error_log("SQL Query: " . $sql);

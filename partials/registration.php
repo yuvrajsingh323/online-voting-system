@@ -204,10 +204,10 @@
                         <input type="text" class="form-control" name="mobile" placeholder="Enter mobile number" required maxlength="10" minlength="10">
                     </div>
                 </div>
-                <div class="mb-2">
+                <div class="mb-2" id="age-section" style="display: none;">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-birthday-cake"></i></span>
-                        <input type="date" class="form-control" name="date_of_birth" placeholder="Enter date of birth" required max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>">
+                        <input type="date" class="form-control" name="date_of_birth" id="date-of-birth" placeholder="Enter date of birth" max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>">
                     </div>
                     <div class="file-info">
                         <small>You must be 18 years or older to vote</small>
@@ -278,14 +278,31 @@
             var accountType = document.getElementById('account-type-select').value;
             var idProofSection = document.getElementById('id-proof-section');
             var idProofInput = document.getElementById('id-proof-upload');
+            var ageSection = document.getElementById('age-section');
+            var ageInput = document.getElementById('date-of-birth');
 
             if (accountType === 'voter') {
+                // Show age and ID proof for voters
+                ageSection.style.display = 'block';
+                ageInput.required = true;
                 idProofSection.style.display = 'block';
                 idProofInput.required = true;
-            } else {
+            } else if (accountType === 'candidate') {
+                // Hide age and ID proof for candidates
+                ageSection.style.display = 'none';
+                ageInput.required = false;
+                ageInput.value = ''; // Clear date
                 idProofSection.style.display = 'none';
                 idProofInput.required = false;
                 idProofInput.value = ''; // Clear any selected file
+            } else {
+                // Hide both for no selection
+                ageSection.style.display = 'none';
+                ageInput.required = false;
+                ageInput.value = '';
+                idProofSection.style.display = 'none';
+                idProofInput.required = false;
+                idProofInput.value = '';
             }
         }
 

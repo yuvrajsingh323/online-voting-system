@@ -312,7 +312,7 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
                         <?php if ($data['standard'] == 'voter'): ?>
                         <div class="mb-2">
                             <h6 class="text-muted mb-1"><i class="fas fa-birthday-cake me-2"></i>Age</h6>
-                            <p class="mb-0"><?php echo isset($data['age']) ? htmlspecialchars($data['age']) . ' years old' : 'Not specified'; ?></p>
+                            <p class="mb-0"><?php echo (isset($data['age']) && $data['age'] !== NULL) ? htmlspecialchars($data['age']) . ' years old' : 'Not applicable (Candidate)'; ?></p>
                         </div>
 
                         <div class="mb-2">
