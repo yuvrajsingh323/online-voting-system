@@ -236,34 +236,30 @@
                         <small>Supported: JPG, PNG, GIF, BMP, WEBP, SVG, MP4, AVI, MOV, WMV, MKV - Max 25MB</small>
                     </div>
                 </div>
-                <div class="mb-2" id="id-proof-section">
-                    <div class="file-upload" id="id-proof-upload-container" style="opacity: 0.5; pointer-events: none;">
-                        <input type="file" name="id_proof" accept="image/*,.pdf,.doc,.docx,.bmp,.tiff,.tif,.webp" id="id-proof-upload" disabled>
-                        <label for="id-proof-upload" class="file-upload-label">
-                            <i class="fas fa-id-card"></i> Upload ID Proof (College ID, Aadhaar, Passport, etc.)
-                        </label>
-                    </div>
-                    <div class="file-info" id="id-proof-info">
-                        <small><i class="fas fa-info-circle me-1"></i>Select "Voter" above to enable ID proof upload for age verification (Max 25MB)</small>
-                    </div>
-                </div>
                 <div class="mb-2">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
-                        <select name="std" class="form-select" required>
+                        <select name="std" class="form-select" id="account-type-select" required onchange="toggleIdProof()">
                             <option value="">Select account type</option>
                             <option value="candidate">Candidate</option>
                             <option value="voter">Voter</option>
                         </select>
                     </div>
                 </div>
+                <div class="mb-2" id="id-proof-section" style="display: none;">
+                    <div class="file-upload">
+                        <input type="file" name="id_proof" accept="image/*,.pdf,.doc,.docx,.bmp,.tiff,.tif,.webp" id="id-proof-upload">
+                        <label for="id-proof-upload" class="file-upload-label">
+                            <i class="fas fa-id-card"></i> Upload ID Proof (College ID, Aadhaar, Passport, etc.)
+                        </label>
+                    </div>
+                    <div class="file-info">
+                        <small class="text-success"><i class="fas fa-check-circle me-1"></i>ID proof required for voter age verification (Max 25MB)</small>
+                    </div>
+                </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-register">
                         <i class="fas fa-user-plus me-2"></i>Register
-                    </button>
-                    <!-- Debug button (remove in production) -->
-                    <button type="button" onclick="triggerUpdate()" class="btn btn-sm btn-outline-secondary mt-2" style="font-size: 10px;">
-                        Debug: Update ID Proof
                     </button>
                 </div>
                 <div class="login-link">
@@ -278,68 +274,25 @@
     integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 
     <script>
-        // Function to update ID proof section
-        function updateIdProofSection() {
-            const accountTypeSelect = document.getElementById('std');
-            const idProofContainer = document.getElementById('id-proof-upload-container');
-            const idProofInput = document.getElementById('id-proof-upload');
-            const idProofInfo = document.getElementById('id-proof-info');
+        function toggleIdProof() {
+            var accountType = document.getElementById('account-type-select').value;
+            var idProofSection = document.getElementById('id-proof-section');
+            var idProofInput = document.getElementById('id-proof-upload');
 
-            console.log('Updating ID proof section for value:', accountTypeSelect.value);
-
-            if (accountTypeSelect.value === 'voter') {
-                idProofContainer.style.opacity = '1';
-                idProofContainer.style.pointerEvents = 'auto';
-                idProofInput.disabled = false;
+            if (accountType === 'voter') {
+                idProofSection.style.display = 'block';
                 idProofInput.required = true;
-                idProofInfo.innerHTML = '<small class="text-success"><i class="fas fa-check-circle me-1"></i>ID proof required for voter age verification (Max 25MB)</small>';
-                console.log('ID proof enabled for voter');
-            } else if (accountTypeSelect.value === 'candidate') {
-                idProofContainer.style.opacity = '0.5';
-                idProofContainer.style.pointerEvents = 'none';
-                idProofInput.disabled = true;
+            } else {
+                idProofSection.style.display = 'none';
                 idProofInput.required = false;
                 idProofInput.value = ''; // Clear any selected file
-                idProofInfo.innerHTML = '<small class="text-muted"><i class="fas fa-info-circle me-1"></i>Candidates are auto-verified, no ID proof needed</small>';
-                console.log('ID proof disabled for candidate');
-            } else {
-                idProofContainer.style.opacity = '0.5';
-                idProofContainer.style.pointerEvents = 'none';
-                idProofInput.disabled = true;
-                idProofInput.required = false;
-                idProofInput.value = '';
-                idProofInfo.innerHTML = '<small><i class="fas fa-info-circle me-1"></i>Select account type to see ID proof requirements</small>';
-                console.log('ID proof disabled - no selection');
             }
         }
 
-        // Enable/disable ID proof section based on account type
-        document.getElementById('std').addEventListener('change', function() {
-            console.log('Account type changed to:', this.value);
-            updateIdProofSection();
-        });
-
-        // Handle initial state and ensure it works
+        // Set initial state
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, setting up ID proof functionality');
-            updateIdProofSection();
-
-            // Also listen for any changes that might happen after DOM load
-            setTimeout(function() {
-                updateIdProofSection();
-            }, 100);
+            toggleIdProof();
         });
-
-        // Additional fallback for when the page is fully loaded
-        window.addEventListener('load', function() {
-            console.log('Page fully loaded');
-            updateIdProofSection();
-        });
-
-        // Manual trigger function for debugging
-        function triggerUpdate() {
-            updateIdProofSection();
-        }
     </script>
 </body>
 </html>
