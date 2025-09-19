@@ -54,15 +54,17 @@ if (!is_array($_SESSION['data']) || empty($_SESSION['data'])) {
 }
 
 // Validate required session fields
-$required_fields = ['id', 'username', 'standard', 'status'];
+$required_fields = ['Id', 'username', 'standard', 'status'];
 foreach ($required_fields as $field) {
     if (!isset($_SESSION['data'][$field])) {
+        file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - ERROR: Missing session field: $field\n", FILE_APPEND);
         error_log("VOTING ERROR: Missing required session field: $field");
         session_destroy();
         header("Location: ../index.php");
         exit();
     }
 }
+file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - Session validation passed\n", FILE_APPEND);
 
 // Check if user has already voted
 if ($_SESSION['status'] == 1) {
