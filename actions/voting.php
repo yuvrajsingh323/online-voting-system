@@ -127,7 +127,7 @@ $voter_id = mysqli_real_escape_string($conn, $_SESSION['id']);
 error_log("VOTING: Processing vote - Voter: $voter_id, Candidate: $candidate_id");
 
 // Verify candidate exists and is actually a candidate
-$check_candidate = "SELECT id, username, votes FROM `userdata` WHERE `id` = '$candidate_id' AND `standard` = 'candidate'";
+$check_candidate = "SELECT Id, username, votes FROM `userdata` WHERE `Id` = '$candidate_id' AND `standard` = 'candidate'";
 $candidate_result = mysqli_query($conn, $check_candidate);
 
 if (!$candidate_result) {
@@ -158,13 +158,13 @@ if (!$candidate_data) {
     exit();
 }
 
-error_log("VOTING: Candidate verified - " . $candidate_data['username'] . " (ID: " . $candidate_data['id'] . ")");
+error_log("VOTING: Candidate verified - " . $candidate_data['username'] . " (ID: " . $candidate_data['Id'] . ")");
 
 // Debug: Log candidate data
-error_log("VOTING DEBUG: Candidate data - ID: " . $candidate_data['id'] . ", Username: " . $candidate_data['username'] . ", Votes: " . $candidate_data['votes']);
+error_log("VOTING DEBUG: Candidate data - ID: " . $candidate_data['Id'] . ", Username: " . $candidate_data['username'] . ", Votes: " . $candidate_data['votes']);
 
 // Double-check voter hasn't voted (database level check)
-$check_voter = "SELECT status, username FROM `userdata` WHERE `id` = '$voter_id' AND `standard` = 'voter'";
+$check_voter = "SELECT status, username FROM `userdata` WHERE `Id` = '$voter_id' AND `standard` = 'voter'";
 $voter_result = mysqli_query($conn, $check_voter);
 
 if (!$voter_result) {
@@ -205,7 +205,7 @@ if ($voter_data['status'] == 1) {
 }
 
 error_log("VOTING: Voter verified - " . $voter_data['username'] . " (ID: $voter_id)");
-error_log("VOTING DEBUG: Voter data - ID: " . $voter_data['id'] . ", Username: " . $voter_data['username'] . ", Status: " . $voter_data['status']);
+error_log("VOTING DEBUG: Voter data - ID: " . $voter_data['Id'] . ", Username: " . $voter_data['username'] . ", Status: " . $voter_data['status']);
 
 // Begin transaction for atomic voting
 if (!mysqli_autocommit($conn, FALSE)) {
@@ -223,7 +223,7 @@ error_log("Starting vote transaction - Voter ID: $voter_id, Candidate ID: $candi
 try {
     error_log("VOTING DEBUG: About to execute candidate vote update");
     // Update candidate votes atomically (prevents race conditions)
-    $update_votes = "UPDATE `userdata` SET `votes` = `votes` + 1 WHERE `id` = '$candidate_id' AND `standard` = 'candidate'";
+    $update_votes = "UPDATE `userdata` SET `votes` = `votes` + 1 WHERE `Id` = '$candidate_id' AND `standard` = 'candidate'";
     $result1 = mysqli_query($conn, $update_votes);
 
     if (!$result1) {
@@ -243,7 +243,7 @@ try {
     error_log("VOTING: Candidate votes updated successfully (+1 vote, affected: $affected_rows)");
 
     // Update voter status
-    $update_status = "UPDATE `userdata` SET `status` = 1 WHERE `id` = '$voter_id' AND `standard` = 'voter'";
+    $update_status = "UPDATE `userdata` SET `status` = 1 WHERE `Id` = '$voter_id' AND `standard` = 'voter'";
     $result2 = mysqli_query($conn, $update_status);
 
     if (!$result2) {
@@ -261,7 +261,7 @@ try {
     error_log("VOTING: Voter status updated successfully (affected: $voter_affected)");
 
     // Get the new vote count for confirmation message
-    $get_new_votes = "SELECT votes FROM `userdata` WHERE `id` = '$candidate_id' AND `standard` = 'candidate'";
+    $get_new_votes = "SELECT votes FROM `userdata` WHERE `Id` = '$candidate_id' AND `standard` = 'candidate'";
     $votes_result = mysqli_query($conn, $get_new_votes);
 
     if (!$votes_result) {
@@ -294,8 +294,8 @@ try {
     error_log("VOTING: Session status updated to voted");
 
     // If the candidate who received the vote is currently logged in, update their session vote count
-    if (isset($_SESSION['data']['id']) && isset($_SESSION['data']['standard']) &&
-        $_SESSION['data']['id'] == $candidate_id && $_SESSION['data']['standard'] == 'candidate') {
+    if (isset($_SESSION['data']['Id']) && isset($_SESSION['data']['standard']) &&
+        $_SESSION['data']['Id'] == $candidate_id && $_SESSION['data']['standard'] == 'candidate') {
         $_SESSION['data']['votes'] = $new_vote_count;
         error_log("VOTING: Candidate session vote count updated to $new_vote_count");
     }

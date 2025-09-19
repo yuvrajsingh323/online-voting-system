@@ -10,11 +10,17 @@ if (!$data) {
     exit();
 }
 
+// Get pending verifications count for admin stats
+$pending_verifications_sql = "SELECT COUNT(*) as total FROM userdata WHERE verification_status = 'pending'";
+$pending_result = mysqli_query($conn, $pending_verifications_sql);
+$pending_row = mysqli_fetch_assoc($pending_result);
+$pending_verifications = $pending_row['total'];
+
 // Note: Database schema should be properly set up using database_setup.php
 // ALTER TABLE calls removed for performance - run database_setup.php if schema issues occur
 
 // Always fetch fresh candidate data to avoid session issues
-$sql = "SELECT username, photo, id, votes FROM `userdata` WHERE `standard`='candidate'";
+$sql = "SELECT username, photo, Id, votes FROM `userdata` WHERE `standard`='candidate'";
 $resultcandidate = mysqli_query($conn, $sql);
 $candidates = [];
 
@@ -24,7 +30,7 @@ if ($resultcandidate && mysqli_num_rows($resultcandidate) > 0) {
         // echo "<!-- Raw candidate data: " . print_r($row, true) . " -->";
 
         // Ensure all required keys exist
-        $row['id'] = isset($row['id']) ? $row['id'] : 0;
+        $row['Id'] = isset($row['Id']) ? $row['Id'] : 0;
         $row['username'] = isset($row['username']) ? $row['username'] : 'Unknown';
         $row['photo'] = isset($row['photo']) ? $row['photo'] : '';
         $row['votes'] = isset($row['votes']) ? intval($row['votes']) : 0;
@@ -33,9 +39,9 @@ if ($resultcandidate && mysqli_num_rows($resultcandidate) > 0) {
 }
 
 // For candidates, fetch their current vote count from database to ensure accuracy
-if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id'])) {
-    $user_id = mysqli_real_escape_string($conn, $data['id']);
-    $current_user_sql = "SELECT votes FROM `userdata` WHERE `id` = '$user_id' AND `standard` = 'candidate'";
+if ($data['standard'] == 'candidate' && isset($data['Id']) && !empty($data['Id'])) {
+    $user_id = mysqli_real_escape_string($conn, $data['Id']);
+    $current_user_sql = "SELECT votes FROM `userdata` WHERE `Id` = '$user_id' AND `standard` = 'candidate'";
     $current_user_result = mysqli_query($conn, $current_user_sql);
 
     if ($current_user_result && mysqli_num_rows($current_user_result) > 0) {
@@ -43,6 +49,31 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
         $fresh_vote_count = intval($current_user_data['votes']);
         $data['votes'] = $fresh_vote_count; // Update local data
         $_SESSION['data']['votes'] = $fresh_vote_count; // Update session data
+    }
+}
+
+// For voters, fetch their current status from database to ensure accuracy
+if ($data['standard'] == 'voter' && isset($data['Id']) && !empty($data['Id'])) {
+    $user_id = mysqli_real_escape_string($conn, $data['Id']);
+    $current_user_sql = "SELECT status, age, verification_status FROM `userdata` WHERE `Id` = '$user_id' AND `standard` = 'voter'";
+    $current_user_result = mysqli_query($conn, $current_user_sql);
+
+    if ($current_user_result && mysqli_num_rows($current_user_result) > 0) {
+        $current_user_data = mysqli_fetch_assoc($current_user_result);
+        $fresh_status = intval($current_user_data['status']);
+        $fresh_age = $current_user_data['age'];
+        $fresh_verification = $current_user_data['verification_status'];
+
+        // Update local data
+        $data['status'] = $fresh_status;
+        $data['age'] = $fresh_age;
+        $data['verification_status'] = $fresh_verification;
+
+        // Update session data
+        $_SESSION['status'] = $fresh_status;
+        $_SESSION['data']['status'] = $fresh_status;
+        $_SESSION['data']['age'] = $fresh_age;
+        $_SESSION['data']['verification_status'] = $fresh_verification;
     }
 }
 
@@ -216,10 +247,10 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
             return confirm('Are you sure you want to vote for ' + candidateName + '?\n\nNote: You can only vote once and this action cannot be undone.');
         }
         
-        // Auto-refresh vote counts every 30 seconds
-        setInterval(function() {
-            location.reload();
-        }, 30000);
+        // Auto-refresh vote counts every 30 seconds (disabled for testing)
+        // setInterval(function() {
+        //     location.reload();
+        // }, 30000);
     </script>
 </head>
 <body>
@@ -243,7 +274,9 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
                     
                     <!-- Account Type Badge -->
                     <div class="mb-3">
-                        <?php if ($data['standard'] == 'candidate'): ?>
+                        <?php if ($data['standard'] == 'admin'): ?>
+                            <span class="badge" style="background: linear-gradient(45deg, #dc3545, #c82333); color: white; border-radius: 20px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600;"><i class="fas fa-cog me-2"></i>ADMINISTRATOR ACCOUNT</span>
+                        <?php elseif ($data['standard'] == 'candidate'): ?>
                             <span class="badge" style="background: linear-gradient(45deg, var(--success-color), #34d399); color: white; border-radius: 20px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600;"><i class="fas fa-crown me-2"></i>CANDIDATE ACCOUNT</span>
                         <?php else: ?>
                             <span class="badge" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); color: white; border-radius: 20px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600;"><i class="fas fa-vote-yea me-2"></i>VOTER ACCOUNT</span>
@@ -296,7 +329,9 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
                         <div class="mb-2">
                             <h6 class="text-muted mb-3"><i class="fas fa-info-circle me-2"></i>Status</h6>
                             <?php
-                            if ($data['standard'] == 'candidate') {
+                            if ($data['standard'] == 'admin') {
+                                echo '<span class="badge" style="background: linear-gradient(45deg, #dc3545, #c82333); color: white; border-radius: 20px; padding: 0.5rem 1rem;"><i class="fas fa-cog me-1"></i>Administrator</span>';
+                            } elseif ($data['standard'] == 'candidate') {
                                 echo '<span class="badge-custom"><i class="fas fa-crown me-1"></i>Candidate</span>';
                             } else {
                                 if ($data['status'] == '1') {
@@ -334,7 +369,21 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($data['standard'] == 'voter'): ?>
+                        <?php if ($data['standard'] == 'admin'): ?>
+                        <div class="stats-card mt-2" style="padding: 1rem;">
+                            <h6 class="text-muted mb-2"><i class="fas fa-chart-pie me-2"></i>System Overview</h6>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="stats-number" style="font-size: 1.5rem;"><?php echo count($candidates); ?></div>
+                                    <small class="text-muted">Total Users</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="stats-number" style="font-size: 1.5rem;"><?php echo $pending_verifications ?? 0; ?></div>
+                                    <small class="text-muted">Pending Reviews</small>
+                                </div>
+                            </div>
+                        </div>
+                        <?php elseif ($data['standard'] == 'voter'): ?>
                         <div class="stats-card mt-2" style="padding: 1rem;">
                             <h6 class="text-muted mb-2"><i class="fas fa-chart-pie me-2"></i>Quick Stats</h6>
                             <div class="row text-center">
@@ -343,7 +392,7 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
                                     <small class="text-muted">Candidates</small>
                                 </div>
                                 <div class="col-6">
-                                    <div class="stats-number" style="font-size: 1.5rem;"><?php echo $data['status'] == '1' ? '1' : '0'; ?></div>
+                                    <div class="stats-number" style="font-size: 1.5rem;"><?php echo $data['status'] == 1 ? '1' : '0'; ?></div>
                                     <small class="text-muted">Votes Cast</small>
                                 </div>
                             </div>
@@ -408,7 +457,7 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
                 
                 <?php if (!empty($candidates)): ?>
                     <?php foreach ($candidates as $candidate): ?>
-                        <div class="candidate-card p-3 <?php echo ($data['standard'] == 'candidate' && isset($candidate['id']) && isset($data['id']) && $candidate['id'] == $data['id']) ? 'border border-primary' : ''; ?>">
+                        <div class="candidate-card p-3 <?php echo ($data['standard'] == 'candidate' && isset($candidate['Id']) && isset($data['Id']) && $candidate['Id'] == $data['Id']) ? 'border border-primary' : ''; ?>">
                             <div class="row align-items-center">
                             <div class="col-md-3 text-center">
                                 <?php if (!empty($candidate['photo'])): ?>
@@ -447,15 +496,15 @@ if ($data['standard'] == 'candidate' && isset($data['id']) && !empty($data['id']
                                 <?php endif; ?>
                             </div>
                             <div class="col-md-3 text-end">
-                                <?php if ($data['standard'] == 'voter' && $data['status'] == '0'): ?>
+                                <?php if ($data['standard'] == 'voter' && $data['status'] == 0): ?>
                                     <form action="../actions/voting.php" method="POST" onsubmit="return confirmVote('<?php echo htmlspecialchars($candidate['username']); ?>')">
-                                        <input type="hidden" name="candidate_id" value="<?php echo isset($candidate['id']) ? htmlspecialchars($candidate['id']) : ''; ?>">
+                                        <input type="hidden" name="candidate_id" value="<?php echo isset($candidate['Id']) ? htmlspecialchars($candidate['Id']) : ''; ?>">
                                         <button type="submit" class="vote-btn"><i class="fas fa-vote-yea me-2"></i>Vote</button>
                                     </form>
-                                <?php elseif ($data['standard'] == 'voter' && $data['status'] == '1'): ?>
+                                <?php elseif ($data['standard'] == 'voter' && $data['status'] == 1): ?>
                                     <span class="badge-custom"><i class="fas fa-check me-1"></i>Voted</span>
                                 <?php else: ?>
-                                    <a href="../candidate_profile.php?id=<?php echo htmlspecialchars($candidate['id']); ?>" class="btn btn-outline-primary btn-sm">
+                                    <a href="../candidate_profile.php?id=<?php echo htmlspecialchars($candidate['Id']); ?>" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-eye me-1"></i>View Profile
                                     </a>
                                 <?php endif; ?>
