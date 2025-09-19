@@ -492,7 +492,7 @@ if ($data['standard'] == 'voter' && isset($data['Id']) && !empty($data['Id'])) {
                                 <h6 class="candidate-name mb-2"><i class="fas fa-user me-2"></i><?php echo htmlspecialchars($candidate['username']); ?></h6>
                                 <div class="candidate-votes"><i class="fas fa-chart-bar me-1"></i><?php echo isset($candidate['votes']) ? htmlspecialchars($candidate['votes']) : '0'; ?> votes</div>
                                 <?php if ($data['standard'] == 'candidate' && isset($candidate['Id']) && isset($data['Id']) && $candidate['Id'] == $data['Id']): ?>
-                                    <span class="badge-custom mt-1"><i class="fas fa-star me-1"></i>Your Profile</span>
+                                    <span class="badge-custom mt-3"><i class="fas fa-star me-1"></i>Your Profile</span>
                                 <?php endif; ?>
                             </div>
                             <div class="col-md-3 text-end">
