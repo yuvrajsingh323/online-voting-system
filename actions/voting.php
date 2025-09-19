@@ -105,7 +105,9 @@ if (!isset($_SESSION['data']['verification_status']) || $_SESSION['data']['verif
 }
 
 // Enhanced POST data validation
+file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - Starting POST validation\n", FILE_APPEND);
 if (!isset($_POST['candidate_id']) || empty($_POST['candidate_id'])) {
+    file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - ERROR: Missing candidate_id\n", FILE_APPEND);
     error_log("VOTING ERROR: Missing or empty candidate_id in POST data");
     echo '<script>
         alert("Invalid vote request: No candidate selected!");
@@ -113,6 +115,7 @@ if (!isset($_POST['candidate_id']) || empty($_POST['candidate_id'])) {
         </script>';
     exit();
 }
+file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - POST validation passed\n", FILE_APPEND);
 
 // Debug: Log received POST data
 error_log("VOTING DEBUG: POST data received - candidate_id: " . (isset($_POST['candidate_id']) ? $_POST['candidate_id'] : 'NOT SET'));
@@ -132,6 +135,7 @@ if (!is_numeric($candidate_id) || $candidate_id <= 0) {
 $candidate_id = mysqli_real_escape_string($conn, $candidate_id);
 $voter_id = mysqli_real_escape_string($conn, $_SESSION['id']);
 
+file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - IDs prepared: voter=$voter_id, candidate=$candidate_id\n", FILE_APPEND);
 error_log("VOTING: Processing vote - Voter: $voter_id, Candidate: $candidate_id");
 
 // Verify candidate exists and is actually a candidate
@@ -226,9 +230,11 @@ if (!mysqli_autocommit($conn, FALSE)) {
 }
 
 // Debug logging
+file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - Starting transaction\n", FILE_APPEND);
 error_log("Starting vote transaction - Voter ID: $voter_id, Candidate ID: $candidate_id");
 
 try {
+    file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - About to update candidate votes\n", FILE_APPEND);
     error_log("VOTING DEBUG: About to execute candidate vote update");
     // Update candidate votes atomically (prevents race conditions)
     $update_votes = "UPDATE `userdata` SET `votes` = `votes` + 1 WHERE `Id` = '$candidate_id' AND `standard` = 'candidate'";
