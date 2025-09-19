@@ -4,6 +4,9 @@ ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/voting_errors.log');
 
+// Debug: Log that script was called
+file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - Voting script called\n", FILE_APPEND);
+
 <?php
 session_start();
 
@@ -30,8 +33,13 @@ if (!$test_query) {
     die($error_msg);
 }
 
+// Debug: Log POST and session data
+file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - POST data: " . print_r($_POST, true) . "\n", FILE_APPEND);
+file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - Session data: " . print_r($_SESSION, true) . "\n", FILE_APPEND);
+
 // Enhanced session validation
 if (!isset($_SESSION['data']) || !isset($_SESSION['id'])) {
+    file_put_contents(__DIR__ . '/voting_debug.log', date('Y-m-d H:i:s') . " - ERROR: Session validation failed\n", FILE_APPEND);
     error_log("VOTING ERROR: User not logged in - redirecting to login");
     header("Location: ../index.php");
     exit();
