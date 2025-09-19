@@ -497,7 +497,7 @@ if ($data['standard'] == 'voter' && isset($data['Id']) && !empty($data['Id'])) {
                             </div>
                             <div class="col-md-3 text-end">
                                 <?php if ($data['standard'] == 'voter' && $data['status'] == 0): ?>
-                                    <form action="../actions/voting.php" method="POST" onsubmit="return confirmVote('<?php echo htmlspecialchars($candidate['username']); ?>')">
+                                    <form action="/online voting system/actions/voting.php" method="POST">
                                         <input type="hidden" name="candidate_id" value="<?php echo isset($candidate['Id']) ? htmlspecialchars($candidate['Id']) : ''; ?>">
                                         <button type="submit" class="vote-btn"><i class="fas fa-vote-yea me-2"></i>Vote</button>
                                     </form>
