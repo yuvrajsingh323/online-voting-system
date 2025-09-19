@@ -106,6 +106,10 @@ if (!isset($_POST['candidate_id']) || empty($_POST['candidate_id'])) {
     exit();
 }
 
+// Debug: Log received POST data
+error_log("VOTING DEBUG: POST data received - candidate_id: " . (isset($_POST['candidate_id']) ? $_POST['candidate_id'] : 'NOT SET'));
+error_log("VOTING DEBUG: Session data - id: " . (isset($_SESSION['id']) ? $_SESSION['id'] : 'NOT SET') . ", status: " . (isset($_SESSION['status']) ? $_SESSION['status'] : 'NOT SET'));
+
 // Validate candidate_id format (should be numeric)
 $candidate_id = trim($_POST['candidate_id']);
 if (!is_numeric($candidate_id) || $candidate_id <= 0) {
@@ -156,6 +160,9 @@ if (!$candidate_data) {
 
 error_log("VOTING: Candidate verified - " . $candidate_data['username'] . " (ID: " . $candidate_data['id'] . ")");
 
+// Debug: Log candidate data
+error_log("VOTING DEBUG: Candidate data - ID: " . $candidate_data['id'] . ", Username: " . $candidate_data['username'] . ", Votes: " . $candidate_data['votes']);
+
 // Double-check voter hasn't voted (database level check)
 $check_voter = "SELECT status, username FROM `userdata` WHERE `id` = '$voter_id' AND `standard` = 'voter'";
 $voter_result = mysqli_query($conn, $check_voter);
@@ -198,6 +205,7 @@ if ($voter_data['status'] == 1) {
 }
 
 error_log("VOTING: Voter verified - " . $voter_data['username'] . " (ID: $voter_id)");
+error_log("VOTING DEBUG: Voter data - ID: " . $voter_data['id'] . ", Username: " . $voter_data['username'] . ", Status: " . $voter_data['status']);
 
 // Begin transaction for atomic voting
 if (!mysqli_autocommit($conn, FALSE)) {
@@ -213,6 +221,7 @@ if (!mysqli_autocommit($conn, FALSE)) {
 error_log("Starting vote transaction - Voter ID: $voter_id, Candidate ID: $candidate_id");
 
 try {
+    error_log("VOTING DEBUG: About to execute candidate vote update");
     // Update candidate votes atomically (prevents race conditions)
     $update_votes = "UPDATE `userdata` SET `votes` = `votes` + 1 WHERE `id` = '$candidate_id' AND `standard` = 'candidate'";
     $result1 = mysqli_query($conn, $update_votes);
