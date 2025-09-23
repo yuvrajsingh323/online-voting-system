@@ -1,4 +1,7 @@
 <?php
+// Set timezone to India
+date_default_timezone_set('Asia/Kolkata');
+
 include __DIR__ . '/../config.php';
 
 $conn = new mysqli($servername, $username, $password, $dbname);

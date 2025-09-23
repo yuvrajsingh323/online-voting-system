@@ -262,6 +262,7 @@ if ($data['standard'] == 'voter' && isset($data['Id']) && !empty($data['Id'])) {
                     <p class="text-muted mb-0">Democratic participation made easy</p>
                 </div>
                 <div>
+                    <a href="../results.php"><button class="btn btn-outline-success me-2"><i class="fas fa-chart-bar me-2"></i>Live Results</button></a>
                     <a href="../"><button class="btn btn-outline-primary me-2"><i class="fas fa-arrow-left me-2"></i>Back</button></a>
                     <a href="../partials/logout.php"><button class="logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Logout</button></a>
                 </div>

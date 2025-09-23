@@ -99,6 +99,21 @@ if (!isset($_SESSION['data']['verification_status']) || $_SESSION['data']['verif
     exit();
 }
 
+// Check if voting is within election time session
+$check_election = "SELECT id, name, start_time, end_time FROM elections WHERE status = 'active' AND NOW() BETWEEN start_time AND end_time LIMIT 1";
+$election_result = mysqli_query($conn, $check_election);
+
+if (!$election_result || mysqli_num_rows($election_result) == 0) {
+    echo '<script>
+        alert("Voting is not currently open. Please check the election schedule.");
+        window.location.href = "../partials/dashboard.php";
+        </script>';
+    exit();
+}
+
+$election_data = mysqli_fetch_assoc($election_result);
+error_log("VOTING: Election active - " . $election_data['name'] . " (ID: " . $election_data['id'] . ")");
+
 // Enhanced POST data validation
 if (!isset($_POST['candidate_id']) || empty($_POST['candidate_id'])) {
     error_log("VOTING ERROR: Missing or empty candidate_id in POST data");
